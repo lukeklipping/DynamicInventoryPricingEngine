@@ -1,0 +1,44 @@
+// use prisma-8
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  CANCELLED
+}
+
+model Product {
+  id            String              @id @default(uuid())
+  name          String
+  description   String?
+  basePrice     Numeric(10, 2)
+  currentPrice  Numeric(10, 2)
+  stockQuantity Int
+  version       Int                 @default(0)
+  createdAt     DateTime            @default(now())
+  updatedAt     temporal.updatedAt()
+  orderItems    OrderItem[]
+}
+
+model Order {
+  id             String       @id @default(uuid())
+  totalAmount    Numeric(10, 2)
+  status         OrderStatus  @default(PENDING)
+  idempotencyKey String       @unique
+  createdAt      DateTime     @default(now())
+  items          OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(uuid())
+  orderId   String
+  productId String
+  quantity  Int
+  pricePaid Numeric(10, 2)
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
+  @@index([productId])
+}
