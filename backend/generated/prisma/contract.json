@@ -291,7 +291,7 @@
               "updatedAt": {
                 "nullable": false,
                 "type": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "kind": "scalar"
                 }
               },
@@ -572,7 +572,7 @@
                   "nullable": false
                 },
                 "updatedAt": {
-                  "codecId": "pg/timestamptz-temporal@1",
+                  "codecId": "pg/timestamptz-string@1",
                   "nativeType": "timestamptz",
                   "nullable": false
                 },
@@ -612,10 +612,10 @@
         "kind": "postgres-schema"
       }
     },
-    "storageHash": "6256a8b724951f4f0a8b4f9e54443cce8863f962d3c6d5d7cc3802747ff32e08"
+    "storageHash": "f8e73915acb89b7070ebded439553cb1e9d3ba50f18e0e8e8e7efcd558dd76ce"
   },
   "execution": {
-    "executionHash": "b59863b880912b687ae07927a05ac4451b89b81d210fdd4328b27b7967ccee40",
+    "executionHash": "56f00a26fb7e0416af480738316e0d8b085dcec7e9f51dfd94296953d13e316c",
     "mutations": {
       "defaults": [
         {
@@ -653,11 +653,11 @@
         },
         {
           "onCreate": {
-            "id": "instantNow",
+            "id": "timestampNow",
             "kind": "generator"
           },
           "onUpdate": {
-            "id": "instantNow",
+            "id": "timestampNow",
             "kind": "generator"
           },
           "ref": {

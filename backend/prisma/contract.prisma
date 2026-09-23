@@ -16,7 +16,7 @@ model Product {
   stockQuantity Int
   version       Int                 @default(0)
   createdAt     DateTime            @default(now())
-  updatedAt     temporal.updatedAt()
+  updatedAt     temporal.updatedAtString()
   orderItems    OrderItem[]
 }
 
