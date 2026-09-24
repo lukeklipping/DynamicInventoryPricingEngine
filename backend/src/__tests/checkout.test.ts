@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import request from "supertest";
 import express from "express";
-import checkoutRouter from "../routes/checkout/checkout.js";
+import checkoutRouter from "../routes/checkoutRoutes.js";
 
 vi.mock("../redis.js", async () => {
     const { default: RedisMock } = await import("ioredis-mock");

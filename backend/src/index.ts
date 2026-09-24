@@ -3,6 +3,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import "./redis.js"; // Import to initialize Redis connection
 import router from "./routes/index.js"
+import { startPricingWorker } from "./workers/pricingWorker.js"
 
 
 dotenv.config();
@@ -23,3 +24,7 @@ app.get("/health", (req, res) => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+startPricingWorker(30000)
+
+
