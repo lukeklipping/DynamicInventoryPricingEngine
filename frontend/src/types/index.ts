@@ -4,10 +4,17 @@ export interface Product {
     description: string | null;
     basePrice: string;
     currentPrice: string;
+    stockQuantity: number;
 
 }
 
 export interface OrderResponse {
-    id: string;
-
+    message: string;
+    order?: {
+        id: string;
+        totalAmount: string;
+        status: string;
+        idempotencyKey: string;
+    };
+    error?: string;
 }
