@@ -1,6 +1,6 @@
 import { Router, type Response, type Request } from "express";
-import { db } from "../../db.js";
-import redis from "../../redis.js";
+import { db } from "../db.js";
+import redis from "../redis.js";
 
 type Money = Parameters<typeof db.orm.public.Order.create>[0]["totalAmount"];
 

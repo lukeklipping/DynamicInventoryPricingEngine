@@ -1,12 +1,14 @@
 import { Router } from "express";
-import productRouter from "./products/products.js";
-import orderRouter from "./orders/orders.js";
-import orderItemRouter from "./orderItems/orderItems.js"
+import productRouter from "./productRoutes.js";
+import orderRouter from "./orderRoutes.js";
+import orderItemRouter from "./orderItemRoutes.js"
+import checkoutRouter from "./checkoutRoutes.js"
 
 const router = Router();
 
 router.use("/products", productRouter);
 router.use("/orders", orderRouter);
 router.use("/orderItems", orderItemRouter);
+router.use("/checkout", checkoutRouter);
 
 export default router;
