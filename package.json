@@ -1,5 +1,9 @@
 {
   "devDependencies": {
     "vite-plugin-checker": "^0.14.5"
+  },
+  "dependencies": {
+    "axios": "^1.20.0",
+    "lucide-react": "^1.48.0"
   }
 }
