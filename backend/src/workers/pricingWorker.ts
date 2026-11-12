@@ -1,10 +1,15 @@
 import { db } from "../db.js"
 
 type Product = Awaited<ReturnType<typeof db.orm.public.Product.all>>[number];
-type Money = NonNullable<Product["currentPrice"]>;
+export type Money = NonNullable<Product["currentPrice"]>;
 
-function toMoney(value: number): Money {
+export function toMoney(value: number): Money {
     return value.toFixed(2) as Money;
+}
+
+// Surge price for a given base price and stock level, rounded to cents
+export function computePrice(base: number, stock: number): number {
+    return Math.round(base * 100 * getMultiplier(stock)) / 100;
 }
 
 // Current implementation uses absolute stock thresholds:
@@ -24,10 +29,7 @@ export async function runDynamicPricingEngine() {
         const products = await db.orm.public.Product.all();
 
         for (const product of products) {
-            const base = Number(product.basePrice);
-            const multiplier = getMultiplier(product.stockQuantity);
-
-            const newPrice = Math.round(base * 100 * multiplier) / 100;
+            const newPrice = computePrice(Number(product.basePrice), product.stockQuantity);
 
             // Only write when the price actually changed
             if (Number(product.currentPrice) !== newPrice) {
