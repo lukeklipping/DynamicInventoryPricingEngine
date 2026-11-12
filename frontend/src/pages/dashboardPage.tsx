@@ -7,14 +7,18 @@ export default function DashboardPage() {
     const [products, setProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [messages, setMessages] = useState<{ [key: string]: string }>({});
+    const [error, setError] = useState<string | null>(null);
 
     const fetchCatalog = async () => {
         try {
             const data = await getProducts();
             setProducts(data);
-            setLoading(false);
+            setError(null);
         } catch (err) {
             console.error("Failed to fetch products", err);
+            setError("Can't reach the API at localhost:3000. Is the backend running?");
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -31,7 +35,8 @@ export default function DashboardPage() {
             const data = await checkoutProduct(productId, 1, idempotencyKey);
             setMessages((prev) => ({
                 ...prev,
-                [productId]: `Success! Order ID: ${data.order?.id || "Processed"}`,
+                // New orders return the order directly (201); duplicates return { message, order } (200)
+                [productId]: `Success! Order ID: ${data.order?.id ?? data.id ?? "Processed"}`,
             }));
             fetchCatalog();
         } catch (err: any) {
@@ -70,6 +75,12 @@ export default function DashboardPage() {
                         <RefreshCw className="w-4 h-4" /> Refresh
                     </button>
                 </div>
+
+                {error && (
+                    <div className="mb-6 flex items-center gap-2 rounded-lg border border-red-800 bg-red-950/50 px-4 py-3 text-sm text-red-300">
+                        <AlertTriangle className="w-4 h-4" /> {error}
+                    </div>
+                )}
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {products.map((product) => {

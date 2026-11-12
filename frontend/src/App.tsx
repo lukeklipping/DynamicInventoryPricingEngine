@@ -1,6 +1,5 @@
-import './App.css'
-import DashboardPage from '../src/pages/dashboardPage'
+import DashboardPage from './pages/dashboardPage'
 
-export default function app() {
+export default function App() {
   return <DashboardPage />
 }

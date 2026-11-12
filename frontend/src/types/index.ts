@@ -9,7 +9,9 @@ export interface Product {
 }
 
 export interface OrderResponse {
-    message: string;
+    // Present when the backend returns the order directly (new order, 201)
+    id?: string;
+    message?: string;
     order?: {
         id: string;
         totalAmount: string;
