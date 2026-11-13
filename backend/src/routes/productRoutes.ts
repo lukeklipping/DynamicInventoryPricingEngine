@@ -42,7 +42,7 @@ router.get("/:id", async (req, res) => {
 
 
 router.post("/", async (req, res) => {
-    const { name, description, basePrice, stockQuantity } = req.params ?? {};
+    const { name, description, basePrice, stockQuantity } = req.body ?? {};
 
     const base = parsePrice(basePrice);
     if(typeof name !== "string" || name.trim() == ""){
@@ -58,7 +58,7 @@ router.post("/", async (req, res) => {
     }
 
     if(!isValidStock(stockQuantity)){
-        return res.status(400);
+        return res.status(400).json({ error: "stockQuantity must be a non-negative integer." });
     }
 
     try{
@@ -77,10 +77,75 @@ router.post("/", async (req, res) => {
 });
 
 router.patch("/:id", async (req, res) => {
-    try{
+    const {id} = req.params;
+    const body = req.body ?? {};
+    const allowed = ["name", "description", "basePrice", "stockQuantity"];
 
-    } catch (error){
-        
+    const unknown = Object.keys(body).filter((k) => !allowed.includes(k));
+
+    if (unknown.length > 0){
+        return res.status(400).json({error: `Unknown fields in request ${unknown}`});
+    }
+    
+    if(Object.keys(body).length === 0){
+        return res.status(400).json({error: "Request must have fields"});
+    }
+
+    if("name" in body && (typeof body.name !== "string" || body.name.trim() == "")){
+        return res.status(400).json({error: "name is required in body"});
+    }
+
+    if("description" in body && typeof body.name !== "string" && body.description != null){
+        return res.status(400).json({error: "description must be a string or null."});
+    }
+
+    const newBase = "basePrice" in body ? parsePrice(body.basePrice) : undefined;
+    if(newBase === null){
+        return res.status(400).json({error: "base price cannot be null."})
+    }
+
+    if("stockQuanitiy" in body && !isValidStock(body.stockQuanitiy)){
+        return res.status(400).json({ error: "stockQuantity must be a non-negative integer." }); 
+    }
+
+    try{
+        const current = await db.orm.public.Product.first();
+        if(!current){
+            return res.status(404).json({error: "product not found."})
+        }
+
+        const base = newBase ?? Number(current.basePrice);
+        const stock: number = body.stockQuantity ?? current.stockQuantity;
+
+        // Same optimistic lock as checkout: if a purchase lands between our read
+        // and this write, the version won't match and we refuse instead of
+        // silently overwriting the stock it just decremented.
+        const updated = await db.orm.public.Product
+            .where({ id, version: current.version })
+            .update({
+                ...("name" in body && { name: body.name.trim() }),
+                ...("description" in body && { description: body.description }),
+                basePrice: toMoney(base),
+                currentPrice: toMoney(computePrice(base, stock)),
+                stockQuantity: stock,
+                version: current.version + 1,
+            });
+        if (!updated) {
+            return res.status(409).json({ error: "Product changed while updating, please retry." })
+;
+        }
+
+        // Checkout seeds Redis from the DB only when the key is missing (SET NX),
+        // so drop the cached count to make it pick up the new stock.
+        if ("stockQuantity" in body) {
+            await redis.del(`product:stock:${id}`);
+        }
+
+        const product = await db.orm.public.Product.where({ id }).first();
+        res.status(200).json(product);
+    } catch (error) {
+        console.error(`Error updating product with id: ${id}`, error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 
